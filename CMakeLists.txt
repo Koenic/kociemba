@@ -4,11 +4,7 @@ project(libkociemba VERSION 1.0.0 LANGUAGES C)
 # Options
 option(BUILD_SHARED_LIBS "Build shared libraries instead of static" ON)
 option(BUILD_TESTS "Build unit tests" ON)
-option(BUILD_EXAMPLES "Build example programs" ON)
-
-# Include headers
-include_directories(${PROJECT_SOURCE_DIR}/include)
-include_directories(${PROJECT_SOURCE_DIR}/internal)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Library sources
 set(KOCIEMBA_SOURCES
@@ -20,8 +16,16 @@ set(KOCIEMBA_SOURCES
 # Build the library
 add_library(kociemba ${KOCIEMBA_SOURCES})
 
-# Set public include directory
-target_include_directories(kociemba PUBLIC ${PROJECT_SOURCE_DIR}/include)
+# Include headers
+target_include_directories(kociemba
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/include
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/internal
+)
+
+get_target_property(kociemba_includes kociemba INCLUDE_DIRECTORIES)
+message(STATUS "Include directories for kociemba: ${kociemba_includes}")
 
 # Install rules
 install(TARGETS kociemba
@@ -34,17 +38,11 @@ install(FILES include/kociemba.h DESTINATION include)
 # Install precomputed data files
 install(DIRECTORY data/ DESTINATION share/libkociemba/data)
 
-# Examples
-if(BUILD_EXAMPLES)
-    if(TARGET solve)
-        target_link_libraries(solve kociemba)
-    endif()
-endif()
-
 # Tests
 if(BUILD_TESTS)
     enable_testing()
     add_executable(test_cubycube tests/test_cubycube.c)
+    target_include_directories(test_cubycube PRIVATE ${PROJECT_SOURCE_DIR}/internal)
     target_link_libraries(test_cubycube kociemba)
     add_test(NAME SolverTest COMMAND test_cubycube)
 endif()

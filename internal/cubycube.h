@@ -28,6 +28,7 @@ typedef struct cubycube cubycube_t;
 extern const corner_t cornerOrder[CORNER_COUNT];
 extern const edge_t edgeOrder[EDGE_COUNT];
 
+cubycube_t *getMoves(void);
 cubycube_t *fromFaceCube(facecube_t *facecube);
 cubycube_t *getCubycube(void);
 
@@ -38,4 +39,7 @@ uint16_t UDSliceCoord(cubycube_t *cubycube);
 uint16_t cpCoord(cubycube_t *cubycube);
 uint16_t epCoord(cubycube_t *cubycube);
 uint16_t UDSliceSortedCoord(cubycube_t *cubycube);
+
+void domove(cubycube_t *cubycube, faces_t move);
+
 #endif

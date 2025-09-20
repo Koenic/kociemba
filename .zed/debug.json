@@ -1,0 +1,13 @@
+[
+  {
+    "label": "Debug native binary",
+    "build": {
+      "command": "cmake",
+      "args": ["--build build"],
+      "cwd": "$ZED_WORKTREE_ROOT"
+    },
+    "program": "$ZED_WORKTREE_ROOT/build/test_cubycube.exe",
+    "request": "launch",
+    "adapter": "CodeLLDB"
+  }
+]

@@ -4,38 +4,85 @@
 #include <stdlib.h>
 #include <string.h>
 
-cubycube_t[FACE_COUNT] getMoves(void) {
-  static cubycube_t moveCube[6];
-  static const corner_t cpU[8] = {UBR, URF, UFL, ULB, DFR, DLF, DBL, DRB};
-  static const uint8_t coU[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-  static const edge_t epU[12] = {UB, UR, UF, UL, DR, DF,
-                                 DL, DB, FR, FL, BL, BR};
-  static const uint8_t eoU[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  static const corner_t cpR[8] = {DFR, UFL, ULB, URF, DRB, DLF, DBL, UBR};
-  static const uint8_t coR[8] = {2, 0, 0, 1, 1, 0, 0, 2};
-  static const edge_t epR[12] = {FR, UF, UL, UB, BR, DF,
-                                 DL, DB, DR, FL, BL, UR};
-  static const uint8_t eoR[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  static const corner_t cpF[8] = {UFL, DLF, ULB, UBR, URF, DFR, DBL, DRB};
-  static const uint8_t coF[8] = {1, 2, 0, 0, 2, 1, 0, 0};
-  static const edge_t epF[12] = {UR, FL, UL, UB, DR, FR,
-                                 DL, DB, UF, DF, BL, BR};
-  static const uint8_t eoF[12] = {0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0};
-  static const corner_t cpD[8] = {URF, UFL, ULB, UBR, DLF, DBL, DRB, DFR};
-  static const uint8_t coD[8] = {0, 0, 0, 0, 0, 0, 0, 0};
-  static const edge_t epD[12] = {UR, UF, UL, UB, DF, DL,
-                                 DB, DR, FR, FL, BL, BR};
-  static const uint8_t eoD[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  static const corner_t cpL[8] = {URF, ULB, DBL, UBR, DFR, UFL, DLF, DRB};
-  static const uint8_t coL[8] = {0, 1, 2, 0, 0, 2, 1, 0};
-  static const edge_t epL[12] = {UR, UF, BL, UB, DR, DF,
-                                 FL, DB, FR, UL, DL, BR};
-  static const uint8_t eoL[12] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  static const corner_t cpB[8] = {URF, UFL, UBR, DRB, DFR, DLF, ULB, DBL};
-  static const uint8_t coB[8] = {0, 0, 1, 2, 0, 0, 2, 1};
-  static const edge_t epB[12] = {UR, UF, UL, BR, DR, DF,
-                                 DL, BL, FR, FL, UB, DB};
-  static const uint8_t eoB[12] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1};
+cubycube_t *getMoves(void) {
+  static cubycube_t moves[FACE_COUNT] = {0};
+  static int moveCuveInited = 0;
+
+  // moves is 'is replaced by' notation as described by kociemba's algorithm
+  // orientations are noted as the change in orientation after the permutation
+  // is made.
+  static const corner_t cpU[CORNER_COUNT] = {UBR, URF, UFL, ULB,
+                                             DFR, DLF, DBL, DRB};
+  static const uint8_t coU[CORNER_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
+  static const edge_t epU[EDGE_COUNT] = {UB, UR, UF, UL, DR, DF,
+                                         DL, DB, FR, FL, BL, BR};
+  static const uint8_t eoU[EDGE_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  // typedef enum { URF, UFL, ULB, UBR, DFR, DLF, DBL, DRB } corner_t;
+  static const corner_t cpR[CORNER_COUNT] = {DFR, UFL, ULB, URF,
+                                             DRB, DLF, DBL, UBR};
+  static const uint8_t coR[CORNER_COUNT] = {2, 0, 0, 1, 1, 0, 0, 2};
+  static const edge_t epR[EDGE_COUNT] = {FR, UF, UL, UB, BR, DF,
+                                         DL, DB, DR, FL, BL, UR};
+  static const uint8_t eoR[EDGE_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  static const corner_t cpF[CORNER_COUNT] = {UFL, DLF, ULB, UBR,
+                                             URF, DFR, DBL, DRB};
+  static const uint8_t coF[CORNER_COUNT] = {1, 2, 0, 0, 2, 1, 0, 0};
+  static const edge_t epF[EDGE_COUNT] = {UR, FL, UL, UB, DR, FR,
+                                         DL, DB, UF, DF, BL, BR};
+  static const uint8_t eoF[EDGE_COUNT] = {0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0};
+  static const corner_t cpD[CORNER_COUNT] = {URF, UFL, ULB, UBR,
+                                             DLF, DBL, DRB, DFR};
+  static const uint8_t coD[CORNER_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0};
+  static const edge_t epD[EDGE_COUNT] = {UR, UF, UL, UB, DF, DL,
+                                         DB, DR, FR, FL, BL, BR};
+  static const uint8_t eoD[EDGE_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  static const corner_t cpL[CORNER_COUNT] = {URF, ULB, DBL, UBR,
+                                             DFR, UFL, DLF, DRB};
+  static const uint8_t coL[CORNER_COUNT] = {0, 1, 2, 0, 0, 2, 1, 0};
+  static const edge_t epL[EDGE_COUNT] = {UR, UF, BL, UB, DR, DF,
+                                         FL, DB, FR, UL, DL, BR};
+  static const uint8_t eoL[EDGE_COUNT] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  static const corner_t cpB[CORNER_COUNT] = {URF, UFL, UBR, DRB,
+                                             DFR, DLF, ULB, DBL};
+  static const uint8_t coB[CORNER_COUNT] = {0, 0, 1, 2, 0, 0, 2, 1};
+  static const edge_t epB[EDGE_COUNT] = {UR, UF, UL, BR, DR, DF,
+                                         DL, BL, FR, FL, UB, DB};
+  static const uint8_t eoB[EDGE_COUNT] = {0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1};
+
+  if (moveCuveInited == 0) {
+    memcpy(moves[U].co, coU, sizeof(uint8_t) * CORNER_COUNT);
+    memcpy(moves[U].eo, eoU, sizeof(uint8_t) * EDGE_COUNT);
+    memcpy(moves[U].cp, cpU, sizeof(corner_t) * CORNER_COUNT);
+    memcpy(moves[U].ep, epU, sizeof(edge_t) * EDGE_COUNT);
+
+    memcpy(moves[R].co, coR, sizeof(uint8_t) * CORNER_COUNT);
+    memcpy(moves[R].eo, eoR, sizeof(uint8_t) * EDGE_COUNT);
+    memcpy(moves[R].cp, cpR, sizeof(corner_t) * CORNER_COUNT);
+    memcpy(moves[R].ep, epR, sizeof(edge_t) * EDGE_COUNT);
+
+    memcpy(moves[F].co, coF, sizeof(uint8_t) * CORNER_COUNT);
+    memcpy(moves[F].eo, eoF, sizeof(uint8_t) * EDGE_COUNT);
+    memcpy(moves[F].cp, cpF, sizeof(corner_t) * CORNER_COUNT);
+    memcpy(moves[F].ep, epF, sizeof(edge_t) * EDGE_COUNT);
+
+    memcpy(moves[D].co, coD, sizeof(uint8_t) * CORNER_COUNT);
+    memcpy(moves[D].eo, eoD, sizeof(uint8_t) * EDGE_COUNT);
+    memcpy(moves[D].cp, cpD, sizeof(corner_t) * CORNER_COUNT);
+    memcpy(moves[D].ep, epD, sizeof(edge_t) * EDGE_COUNT);
+
+    memcpy(moves[L].co, coL, sizeof(uint8_t) * CORNER_COUNT);
+    memcpy(moves[L].eo, eoL, sizeof(uint8_t) * EDGE_COUNT);
+    memcpy(moves[L].cp, cpL, sizeof(corner_t) * CORNER_COUNT);
+    memcpy(moves[L].ep, epL, sizeof(edge_t) * EDGE_COUNT);
+
+    memcpy(moves[B].co, coB, sizeof(uint8_t) * CORNER_COUNT);
+    memcpy(moves[B].eo, eoB, sizeof(uint8_t) * EDGE_COUNT);
+    memcpy(moves[B].cp, cpB, sizeof(corner_t) * CORNER_COUNT);
+    memcpy(moves[B].ep, epB, sizeof(edge_t) * EDGE_COUNT);
+    moveCuveInited = 1;
+  }
+
+  return moves;
 }
 
 cubycube_t *fromFaceCube(facecube_t *facecube) {
@@ -199,4 +246,32 @@ uint16_t UDSliceSortedCoord(cubycube_t *cubycube) {
     coord = (coord + count) * i;
   }
   return coord;
+}
+
+void domove(cubycube_t *cubycube, faces_t move) {
+  cubycube_t moves = getMoves()[move];
+
+  corner_t cpTemp[CORNER_COUNT] = {0};
+  uint8_t coTemp[CORNER_COUNT] = {0};
+  for (int i = 0; i < CORNER_COUNT; i++) {
+    cpTemp[i] = cubycube->cp[moves.cp[i]];
+    coTemp[i] = cubycube->co[moves.cp[i]];
+  }
+
+  edge_t epTemp[EDGE_COUNT] = {0};
+  uint8_t eoTemp[EDGE_COUNT] = {0};
+  for (int i = 0; i < EDGE_COUNT; i++) {
+    epTemp[i] = cubycube->ep[moves.ep[i]];
+    eoTemp[i] = cubycube->eo[moves.ep[i]];
+  }
+
+  // update state
+  for (int i = 0; i < CORNER_COUNT; i++) {
+    cubycube->cp[i] = cpTemp[i];
+    cubycube->co[i] = (coTemp[i] + moves.co[i]) % 3;
+  }
+  for (int i = 0; i < EDGE_COUNT; i++) {
+    cubycube->ep[i] = epTemp[i];
+    cubycube->eo[i] = (eoTemp[i] + moves.eo[i]) % 2;
+  }
 }

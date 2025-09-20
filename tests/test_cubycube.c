@@ -109,6 +109,33 @@ static void test_get_coord_cube_2() {
   free(coordcube);
 }
 
+
+static void test_domove() {
+  cubycube_t *cube = getCubycube();
+  cubycube_t cube2 = getMoves()[F];
+  domove(cube, F);
+  
+  assert(arrays_equal_uint8(cube->co, cube2.co, 8));
+  assert(arrays_equal_corner(cube->cp, cube2.cp, 8));
+  assert(arrays_equal_uint8(cube->eo, cube2.eo, 12));
+  assert(arrays_equal_edge(cube->ep, cube2.ep, 12));
+
+  free(cube);
+}
+
+static void test_domove2() {
+  cubycube_t *cube = getCubycube();
+  domove(cube, R);
+  domove(cube, R);
+  
+  uint8_t expected_co[8] = {0,0,0,0,0,0,0,0};
+  uint8_t expected_eo[12] = {0,0,0,0,0,0,0,0,0,0,0,0};
+  assert(arrays_equal_uint8(cube->co, expected_co, 8));
+  assert(arrays_equal_uint8(cube->eo, expected_eo, 12));
+
+  free(cube);
+}
+
 int main(void) {
   printf("Running cubycube tests...\n");
 
@@ -116,6 +143,8 @@ int main(void) {
   test_transform_to_cubycube_2();
   test_get_coord_cube_1();
   test_get_coord_cube_2();
+  test_domove();
+  test_domove2();
   printf("All cubycube tests passed!\n");
   return 0;
 }
