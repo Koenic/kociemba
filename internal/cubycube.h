@@ -32,6 +32,7 @@ cubycube_t *getMoves(void);
 cubycube_t *fromFaceCube(facecube_t *facecube);
 cubycube_t *getCubycube(void);
 
+cubycube_t *setCoCoord(uint8_t co);
 uint16_t coCoord(cubycube_t *cubycube);
 uint16_t eoCoord(cubycube_t *cubycube);
 uint16_t UDSliceCoord(cubycube_t *cubycube);

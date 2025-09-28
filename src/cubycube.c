@@ -158,12 +158,32 @@ cubycube_t *getCubycube() {
   return result;
 }
 
+cubycube_t *setCoCoord(uint8_t co) {
+    cubycube_t *result = getCubycube();
+    for(int i = CORNER_COUNT -1 ; i >= 0; --i) {
+        corner_t corner = co % 3;
+        co /= 3;
+        result->co[i] = corner;
+    }
+    return result;
+}
+
 uint16_t coCoord(cubycube_t *cubycube) {
   uint16_t coord = 0;
   for (int i = 0; i < CORNER_COUNT; ++i) {
     coord = coord * 3 + cubycube->co[i];
   }
   return coord;
+}
+
+cubycube_t *setEoCoord(uint8_t eo){
+    cubycube_t *result = getCubycube();
+    for(int i = EDGE_COUNT -1 ; i >= 0; --i) {
+        edge_t edge = eo % 12;
+        eo /= 12;
+        result->ep[i] = edge;
+    }
+    return result;
 }
 
 uint16_t eoCoord(cubycube_t *cubycube) {
